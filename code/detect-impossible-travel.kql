@@ -1,0 +1,8 @@
+let TimePeriodThreshold = timespan(7d);
+let NumberOfDifferentLocationsAllowed = 1;
+SigninLogs
+| where TimeGenerated > ago(TimePeriodThreshold)
+| summarize count() by UserPrincipalName, City = tostring(parse_json(LocationDetails).city), State = tostring(parse_json(LocationDetails).state), Country = tostring(parse_json(LocationDetails).countryOrRegion)
+| project UserPrincipalName, City, State, Country
+| summarize PotentialImpossibleTravelInstances = count() by UserPrincipalName
+| where PotentialImpossibleTravelInstances > NumberOfDifferentLocationsAllowed
